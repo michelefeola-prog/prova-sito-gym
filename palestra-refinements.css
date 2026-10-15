@@ -1,0 +1,40 @@
+/* Rifiniture limitate alle due sezioni della pagina La palestra. */
+.gf-presence--refined h2,
+.gf-cta--refined h2 {
+  font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: -.035em;
+  line-height: 1.2;
+}
+.gf-presence--refined h2 {
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+  max-width: 23ch;
+  margin-bottom: 1.5rem;
+  text-wrap: balance;
+}
+.gf-presence--refined .gf-presence__description {
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  line-height: 1.7;
+  max-width: 54ch;
+  margin: 0 0 1.25rem;
+}
+.gf-presence--refined .gf-presence__sunday {
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  max-width: 54ch;
+  margin: 0 0 .65rem;
+}
+.gf-presence--refined .gf-note {
+  max-width: 62ch;
+  margin-bottom: 0;
+}
+.gf-cta--refined h2 {
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  max-width: 23ch;
+  margin: .75rem auto 1.75rem;
+  text-wrap: balance;
+}

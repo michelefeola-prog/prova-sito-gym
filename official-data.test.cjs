@@ -1,0 +1,18 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const E=require('../assets/js/engine.js'),C=require('../assets/js/catalog.js'),ctx={window:{}};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../data/config.js'),'utf8'),ctx);
+const c=JSON.parse(JSON.stringify(ctx.window.GYM_CONFIG));
+const now=Date.parse('2026-10-11T06:00:00Z');
+test('Owner-confirmed opening and telephone',()=>{assert.equal(c.phone,'+393791412293');for(let d=1;d<=5;d++)assert.deepEqual(c.opening.days[d],[['07:00','22:00']]);assert.deepEqual(c.opening.days[6],[['09:00','18:00']]);assert.deepEqual(c.opening.days[7],[['10:00','13:00']]);assert.equal(c.opening.confirmed,true);});
+test('Seven classes plus weight room; 22 weekly starts',()=>{assert.equal(c.courses.length,8);assert.equal(c.courses.filter(x=>x.kind==='course').length,7);assert.equal(c.schedule.sessions.length,22);assert.equal(new Set(c.schedule.sessions.map(x=>x.id)).size,22);});
+test('Exact timetable matches supplied screenshots',()=>{const expected={functional:[[1,3,5],['19:00']],tabata:[[2,4],['19:00']],trx:[[1,3,5],['20:00']],pilates:[[2,4],['09:30','18:00']],calisthenics:[[1,3,5],['21:00']],spinning:[[1,3,5],['19:30']],'pole-dance':[[2,4],['20:00','21:00']]};for(const[id,[days,times]]of Object.entries(expected)){const actual=c.schedule.sessions.filter(x=>x.course===id).map(x=>`${x.day}/${x.time}`).sort();assert.deepEqual(actual,days.flatMap(d=>times.map(t=>`${d}/${t}`)).sort());}});
+test('No invented lesson durations or season end',()=>{assert.equal(c.schedule.validThrough,null);assert.ok(c.schedule.sessions.every(x=>!x.duration));});
+test('Sunday has no classes; countdown targets Monday Functional',()=>{assert.equal(E.next(c,now).upcoming[0].course,'functional');assert.equal(E.next(c,now).upcoming[0].time,'19:00');assert.equal(E.next(c,now).upcoming[0].date,'2026-10-12');});
+test('Tuesday after morning Pilates targets evening Pilates',()=>{const n=E.next(c,Date.parse('2026-10-13T08:00:00Z'));assert.equal(n.upcoming[0].course,'pilates');assert.equal(n.upcoming[0].time,'18:00');});
+test('Pole Dance has a distinct 21:00 start',()=>{const n=E.next(c,Date.parse('2026-10-13T18:30:00Z'));assert.equal(n.upcoming[0].course,'pole-dance');assert.equal(n.upcoming[0].time,'21:00');});
+test('Mobility/moderate/group quiz recommends Pilates with morning match',()=>{const r=E.rank(c,['mobilita','inizio','moderata','gruppo','mobilita',{days:[2],slots:['mattina']}],now);assert.equal(r[0].id,'pilates');assert.equal(r[0].appointments[0].time,'09:30');});
+test('Group Sunday has no compatible appointments',()=>{const r=E.rank(c,['forza','esperto','intensa','gruppo','forza',{days:[7],slots:['mattina']}],now);assert.ok(r.length);assert.ok(r.every(x=>x.appointments.length===0));});
+test('Sunday weight-room window intersects morning as 10–12',()=>{const windows=E.freeWindows(c,{days:[7],slots:['mattina']},now);assert.equal(windows[0].from,'10:00');assert.equal(windows[0].to,'12:00');});
+test('Sunday evening has no weight-room compatibility',()=>assert.deepEqual(E.freeWindows(c,{days:[7],slots:['sera']},now),[]));
+test('All course images and descriptions are present',()=>{for(const x of c.courses){assert.ok(fs.existsSync(path.join(__dirname,'..',x.image)));assert.ok(x.description.length>60);assert.ok(x.detail.length>100);assert.ok(C.card(x,c).includes(x.image));}});
+test('Weekly overview has 22 lesson entries and seven days',()=>{const html=C.overview(c);assert.equal((html.match(/<li>/g)||[]).length,22);assert.equal((html.match(/class="week-day"/g)||[]).length,7);});

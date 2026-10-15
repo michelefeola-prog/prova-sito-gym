@@ -1,0 +1,148 @@
+/* ==========================================================================
+   Gym Factory · gym-wow.css
+   Animazioni + componenti per le foto reali. Nessuna dipendenza.
+   Eredita font e colori del sito; usa solo variabili --gfw-* qui sotto.
+   ========================================================================== */
+:root{
+  --gfw-violet:#662778;
+  --gfw-violet-hi:#b04fd1;
+  --gfw-pink:#ff5fd2;
+  --gfw-ink:#0d0912;
+  --gfw-paper:#f6f1f8;
+  --gfw-ease:cubic-bezier(.2,.8,.2,1);
+  --gfw-ease-in:cubic-bezier(.6,0,.9,.4);
+}
+
+/* ---------- 0. Protezione anti-flash (il JS toglie il velo) ---------- */
+.gfw-js:not(.gfw-ready) main :is(h1,h2){visibility:hidden}
+
+/* ---------- 1. Transizione tra pagine (Chrome/Edge/Safari recenti) ---------- */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:gfw-page-out .38s var(--gfw-ease-in) both}
+::view-transition-new(root){animation:gfw-page-in .7s var(--gfw-ease) both}
+@keyframes gfw-page-out{to{opacity:.0;transform:scale(.985);filter:blur(6px)}}
+@keyframes gfw-page-in{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+
+/* ---------- 2. Barra di avanzamento + riflettore che segue il mouse ---------- */
+.gfw-progress{position:fixed;inset:0 0 auto 0;height:3px;z-index:9999;pointer-events:none;
+  background:linear-gradient(90deg,var(--gfw-violet),var(--gfw-pink));
+  transform-origin:0 50%;transform:scaleX(var(--p,0));box-shadow:0 0 14px var(--gfw-violet-hi)}
+.gfw-spot{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .6s;
+  background:radial-gradient(520px circle at var(--sx,50%) var(--sy,50%),rgba(176,79,209,.13),transparent 62%)}
+.gfw-spot.is-on{opacity:1}
+
+/* ---------- 3. Titoli: parola per parola, da una maschera ---------- */
+.gfw-split .gfw-w{display:inline-block;overflow:hidden;vertical-align:top;padding:.04em .02em .16em;margin:-.04em -.02em -.16em}
+.gfw-split .gfw-w>span{display:inline-block;transform:translateY(112%) rotate(5deg);transform-origin:0 100%;
+  transition:transform 1s var(--gfw-ease) calc(var(--i,0)*70ms + var(--d,0ms))}
+.gfw-split.is-in .gfw-w>span{transform:none}
+
+/* ---------- 4. Immagini: sipario + zoom che si assesta ---------- */
+.gfw-img{clip-path:inset(0 0 100% 0);transform:scale(1.14);
+  transition:clip-path 1.2s var(--gfw-ease),transform 1.6s var(--gfw-ease)}
+.gfw-img.is-in{clip-path:inset(0 0 0 0);transform:scale(1)}
+img[data-gfw-parallax]{will-change:transform;transform-origin:50% 40%}
+
+/* ---------- 5. Card: inclinazione 3D + riflesso di luce ---------- */
+.gfw-tilt{transform-style:preserve-3d;transition:transform .5s var(--gfw-ease),box-shadow .5s;will-change:transform;position:relative}
+.gfw-tilt.is-hover{transition:transform .08s linear,box-shadow .5s;box-shadow:0 30px 60px -28px rgba(102,39,120,.55)}
+.gfw-tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s;
+  background:radial-gradient(380px circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.22),transparent 55%);mix-blend-mode:overlay}
+.gfw-tilt.is-hover::after{opacity:1}
+.gfw-magnetic{will-change:transform;transition:transform .45s var(--gfw-ease)}
+.gfw-magnetic.is-hover{transition:transform .12s linear}
+
+/* ---------- 6. Equalizzatore: la firma del brand (music to your body) ---------- */
+.gfw-eq{--amp:0;display:flex;align-items:flex-end;justify-content:center;gap:clamp(3px,.5vw,7px);
+  height:clamp(70px,11vw,150px);padding:0 4vw;overflow:hidden;pointer-events:none}
+.gfw-eq i{flex:1 1 0;max-width:16px;height:100%;border-radius:1px;transform-origin:50% 100%;
+  background:linear-gradient(to top,var(--gfw-violet) 0%,var(--gfw-violet-hi) 62%,var(--gfw-pink) 100%);
+  transform:scaleY(var(--lo,.12));
+  animation:gfw-bar var(--t,1.4s) ease-in-out var(--dl,0s) infinite;opacity:.92}
+@keyframes gfw-bar{
+  0%,100%{transform:scaleY(var(--lo,.12))}
+  50%{transform:scaleY(calc(var(--h,.6) * (.55 + var(--amp,0) * .45)))}
+}
+
+/* ---------- 7. Scritta che scorre ---------- */
+.gfw-marquee{display:flex;overflow:hidden;white-space:nowrap;user-select:none}
+.gfw-marquee__row{display:flex;flex:none;gap:2.2rem;padding-right:2.2rem;animation:gfw-marq 28s linear infinite}
+.gfw-marquee:hover .gfw-marquee__row{animation-play-state:paused}
+@keyframes gfw-marq{to{transform:translateX(-100%)}}
+
+/* ---------- 8. TOUR: scorrimento orizzontale agganciato ---------- */
+.gfw-tour{position:relative;background:var(--gfw-ink);color:var(--gfw-paper);--gfw-h:300vh}
+.gfw-tour__sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:clamp(1rem,3vh,2.2rem)}
+.gfw-tour__head{padding:0 clamp(1.2rem,6vw,5rem);display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;position:relative;z-index:3}
+.gfw-tour__title{font-size:clamp(2rem,5.4vw,4.6rem);line-height:.98;margin:0;letter-spacing:-.02em;max-width:14ch}
+.gfw-tour__count{font-variant-numeric:tabular-nums;font-size:clamp(1rem,1.6vw,1.3rem);opacity:.85;white-space:nowrap}
+.gfw-tour__count b{font-size:1.8em;font-weight:700;color:var(--gfw-pink)}
+.gfw-tour__track{display:flex;gap:clamp(1rem,2.4vw,2.4rem);padding:0 clamp(1.2rem,8vw,7rem);width:max-content;will-change:transform}
+.gfw-tour__item{margin:0;position:relative;flex:none;height:clamp(300px,58vh,640px);aspect-ratio:var(--ar,4/5);border-radius:6px;overflow:hidden;cursor:zoom-in;
+  background:#1b1322;opacity:var(--o,1);transition:opacity .3s}
+.gfw-tour__item img{width:112%;max-width:none;height:100%;object-fit:cover;display:block;transform:translateX(var(--ix,0%)) scale(var(--sc,1));will-change:transform}
+.gfw-tour__item figcaption{position:absolute;left:0;right:0;bottom:0;padding:3.2rem 1.2rem 1.1rem;font-size:clamp(.95rem,1.3vw,1.1rem);line-height:1.25;
+  background:linear-gradient(to top,rgba(10,6,14,.88),transparent);transform:translateY(calc((1 - var(--f,1)) * 70%));opacity:var(--f,1)}
+.gfw-tour__bar{margin:0 clamp(1.2rem,6vw,5rem);height:2px;background:rgba(255,255,255,.16);position:relative;z-index:3}
+.gfw-tour__bar i{position:absolute;inset:0;background:linear-gradient(90deg,var(--gfw-violet-hi),var(--gfw-pink));transform-origin:0 50%;transform:scaleX(var(--tp,0))}
+.gfw-tour__hint{position:absolute;right:clamp(1.2rem,6vw,5rem);bottom:calc(clamp(1rem,3vh,2.2rem) - .1rem);font-size:.85rem;opacity:.6;transition:opacity .4s}
+.gfw-tour.is-moving .gfw-tour__hint{opacity:0}
+
+/* ---------- 9. BENTO: griglia di foto per "La palestra" ---------- */
+.gfw-bento{display:grid;gap:clamp(.6rem,1.4vw,1.2rem);padding:clamp(1.2rem,6vw,5rem);
+  grid-template-columns:repeat(12,1fr);grid-auto-rows:clamp(110px,15vw,210px)}
+.gfw-bento figure{margin:0;position:relative;overflow:hidden;border-radius:6px;cursor:zoom-in;background:#1b1322}
+.gfw-bento img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.4s var(--gfw-ease),filter .6s}
+.gfw-bento figure:hover img{transform:scale(1.07)}
+.gfw-bento figcaption{position:absolute;inset:auto 0 0 0;padding:2.4rem 1rem .9rem;color:#fff;font-size:clamp(.9rem,1.2vw,1.05rem);
+  background:linear-gradient(to top,rgba(10,6,14,.85),transparent);transform:translateY(60%);opacity:0;transition:transform .6s var(--gfw-ease),opacity .5s}
+.gfw-bento figure:hover figcaption,.gfw-bento figure:focus-visible figcaption{transform:none;opacity:1}
+.gfw-bento .b1{grid-column:1/8;grid-row:1/4}
+.gfw-bento .b2{grid-column:8/13;grid-row:1/3}
+.gfw-bento .b3{grid-column:8/13;grid-row:3/5}
+.gfw-bento .b4{grid-column:1/5;grid-row:4/7}
+.gfw-bento .b5{grid-column:5/8;grid-row:4/7}
+.gfw-bento .b6{grid-column:8/13;grid-row:5/7}
+@media (max-width:760px){
+  .gfw-bento{grid-template-columns:1fr 1fr;grid-auto-rows:42vw}
+  .gfw-bento figure{grid-column:auto!important;grid-row:auto!important}
+  .gfw-bento .b1{grid-column:1/3!important;grid-row:span 2!important}
+  .gfw-bento figcaption{transform:none;opacity:1}
+}
+
+/* ---------- 10. FACCIATA: l'ingresso si apre a cerchio ---------- */
+.gfw-facade{position:relative;overflow:hidden;background:var(--gfw-ink);color:var(--gfw-paper)}
+.gfw-facade__media{position:relative;clip-path:circle(0% at 56% 62%);transition:clip-path 1.8s var(--gfw-ease)}
+.gfw-facade.is-in .gfw-facade__media{clip-path:circle(150% at 56% 62%)}
+.gfw-facade__media img{display:block;width:100%;height:auto;max-height:86vh;object-fit:cover;transform:scale(1.12);transition:transform 2.6s var(--gfw-ease)}
+.gfw-facade.is-in .gfw-facade__media img{transform:scale(1)}
+.gfw-pin{position:absolute;left:56%;top:61%;width:0;height:0;pointer-events:none}
+.gfw-pin::before,.gfw-pin::after{content:"";position:absolute;left:-26px;top:-26px;width:52px;height:52px;border-radius:50%;border:2px solid var(--gfw-pink);
+  animation:gfw-ping 2.6s var(--gfw-ease) infinite;opacity:0}
+.gfw-pin::after{animation-delay:1.3s}
+.gfw-pin span{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:var(--gfw-pink);box-shadow:0 0 18px var(--gfw-pink)}
+@keyframes gfw-ping{0%{transform:scale(.3);opacity:.9}100%{transform:scale(2.2);opacity:0}}
+.gfw-pin em{position:absolute;left:26px;top:-14px;white-space:nowrap;font-style:normal;font-size:clamp(.8rem,1.3vw,1rem);padding:.35rem .7rem;border-radius:99px;
+  background:rgba(13,9,18,.82);backdrop-filter:blur(6px);border:1px solid rgba(255,95,210,.5)}
+.gfw-facade__copy{padding:clamp(1.4rem,5vw,4rem);display:grid;gap:.6rem;max-width:62ch}
+
+/* ---------- 11. Lightbox ---------- */
+.gfw-lb{border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh;width:100vw;height:100vh;color:#fff;overflow:hidden}
+.gfw-lb::backdrop{background:rgba(9,5,13,.92);backdrop-filter:blur(10px)}
+.gfw-lb__in{width:100%;height:100%;display:grid;place-items:center;align-content:center;gap:1rem;padding:3vh 3vw;cursor:zoom-out}
+.gfw-lb img{max-width:94vw;max-height:80vh;border-radius:6px;box-shadow:0 40px 120px -20px #000}
+.gfw-lb p{margin:0;font-size:1.05rem;text-align:center;max-width:60ch}
+.gfw-lb button{position:absolute;top:1.2rem;right:1.4rem;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.35);color:#fff;border-radius:99px;padding:.55rem 1rem;font:inherit;cursor:pointer}
+.gfw-lb button:focus-visible,.gfw-tour__item:focus-visible,.gfw-bento figure:focus-visible{outline:2px solid var(--gfw-pink);outline-offset:3px}
+
+/* ---------- Accessibilità: niente movimento se non lo vuoi ---------- */
+@media (prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  .gfw-split .gfw-w>span,.gfw-img,.gfw-facade__media,.gfw-facade__media img{transition:none!important;transform:none!important;clip-path:none!important}
+  .gfw-eq i,.gfw-marquee__row,.gfw-pin::before,.gfw-pin::after{animation:none!important}
+  .gfw-eq i{transform:scaleY(.5)}
+  .gfw-tour{--gfw-h:auto}
+  .gfw-tour__sticky{position:static;height:auto;padding:4rem 0}
+  .gfw-tour__track{overflow-x:auto;width:auto;scroll-snap-type:x mandatory}
+  .gfw-tour__item{scroll-snap-align:center}
+}
