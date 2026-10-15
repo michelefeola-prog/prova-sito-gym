@@ -99,36 +99,16 @@
   function buildEq(el) {
     const n = el.dataset.bars ? +el.dataset.bars : clamp(Math.round(innerWidth / 17), 24, 110);
     el.setAttribute('aria-hidden', 'true'); el.innerHTML = '';
-    const bars = [];
     for (let i = 0; i < n; i++) {
       const b = document.createElement('i');
       // onda di base + disturbo: sembra musica vera, non un loop
       const wave = 0.5 + 0.5 * Math.sin(i * 0.33) * Math.cos(i * 0.11);
-      const h = 0.22 + wave * 0.78 * (0.55 + Math.random() * 0.45);
-      const lo = 0.06 + Math.random() * 0.08;
-      b.style.setProperty('--h', h.toFixed(2));
-      b.style.setProperty('--lo', lo.toFixed(2));
+      b.style.setProperty('--h', (0.22 + wave * 0.78 * (0.55 + Math.random() * 0.45)).toFixed(2));
+      b.style.setProperty('--lo', (0.06 + Math.random() * 0.08).toFixed(2));
+      b.style.setProperty('--t', (0.9 + Math.random() * 1.1).toFixed(2) + 's');
+      b.style.setProperty('--dl', (-Math.random() * 2).toFixed(2) + 's');
       el.appendChild(b);
-      bars.push({ b, h, lo, sp: 1.8 + Math.random() * 3.4, ph: Math.random() * 6.283 });
     }
-    // le barre sono mosse dal JS (requestAnimationFrame): funziona identico su iPhone, Android e desktop
-    el.__bars = bars; el.classList.add('is-js');
-    if (reduce) bars.forEach((o) => { o.b.style.transform = 'scaleY(' + (o.h * 0.6).toFixed(2) + ')'; });
-  }
-  function animateEqs(ts) {
-    if (reduce) return;
-    const t = ts / 1000, pulse = 0.5 + 0.5 * Math.sin(t * 2.4);
-    eqs.forEach((el) => {
-      if (!el.__bars) return;
-      const r = el.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > innerHeight) return;
-      const amp = 0.55 + vel * 0.45, beat = 0.86 + 0.14 * pulse;
-      el.__bars.forEach((o, i) => {
-        const s = 0.5 + 0.5 * Math.sin(t * o.sp + o.ph + i * 0.12);
-        const v = o.lo + (o.h * amp * beat - o.lo) * s;
-        o.b.style.transform = 'scaleY(' + Math.max(0.04, v).toFixed(3) + ')';
-      });
-    });
   }
   const eqs = $$('.gfw-eq');
   // equalizzatore automatico prima del footer, se non l'hai già messo
@@ -242,13 +222,12 @@
 
   /* ---------- ciclo principale (un solo rAF per tutto) ---------- */
   let lastY = scrollY, vel = 0, ticking = true;
-  function frame(ts) {
+  function frame() {
     const y = scrollY, h = document.documentElement.scrollHeight - innerHeight;
     bar.style.setProperty('--p', h > 0 ? (y / h).toFixed(4) : 0);
     // velocità di scroll → ampiezza dell'equalizzatore (più scorri, più la musica sale)
     vel = lerp(vel, Math.min(Math.abs(y - lastY) / 38, 1), 0.12); lastY = y;
     eqs.forEach((e) => e.style.setProperty('--amp', vel.toFixed(3)));
-    animateEqs(ts || performance.now());
     if (!reduce) {
       parallax.forEach((img) => {
         const r = img.parentElement.getBoundingClientRect();
@@ -269,7 +248,7 @@
     prepImages();
     $$('.gfw-facade, [data-gfw-reveal-block]').forEach(reveal);
     if (fine && !reduce) {
-      $$('.gfw-tilt').forEach(bindTilt);
+      $$('.gfw-tilt, main [class*="card"]').forEach(bindTilt);
       $$('.gfw-magnetic, main a[class*="btn"], main a[class*="button"], main a[class*="cta"]').forEach(bindMagnet);
     }
     measureTours();
